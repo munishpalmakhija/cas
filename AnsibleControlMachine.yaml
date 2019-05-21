@@ -1,4 +1,15 @@
 inputs:
+  username:
+    type: string
+    title: Username
+    description: Username
+    default: root
+  password:
+    type: string
+    title: Password
+    default: VMware123
+    encrypted: true
+    description: Password for the given username
   TargetCloudType:
     title: Target Cloud Type
     type: string
@@ -10,21 +21,18 @@ inputs:
 resources:
   AnsibleControlMachine:
     type: Cloud.Machine
-    metadata:
-      layoutPosition:
-        - 0
-        - 0
     properties:
-      image: ubuntu
-      flavor: small
+      image: acm_ubuntu
+      flavor: acm_small
       constraints:
         - tag: '${input.TargetCloudType}'
       cloudConfig: |
         #cloud-config
+        ssh_pwauth: yes
         chpasswd:
           list: |
-            root:VMware123
-          expire: False  
+            ${input.username}:${input.password}
+          expire: false  
         runcmd:
         - sed -e 's/.*127.*/127.0.0.1 ansiblecontrolmachine/' -i /etc/hosts
         - sudo sed -e 's/.*PasswordAuthentication no.*/PasswordAuthentication yes/' -i /etc/ssh/sshd_config
