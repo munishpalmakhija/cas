@@ -23,7 +23,7 @@ resources:
         #cloud-config
         chpasswd:
           list: |
-            root:VMware1!
+            root:VMware123
           expire: False  
         runcmd:
         - sed -e 's/.*127.*/127.0.0.1 ansiblecontrolmachine/' -i /etc/hosts
