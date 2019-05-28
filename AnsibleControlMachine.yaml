@@ -1,0 +1,47 @@
+inputs:
+  username:
+    type: string
+    title: Username
+    description: Username
+    default: root
+  password:
+    type: string
+    title: Password
+    default: VMware123
+    encrypted: true
+    description: Password for the given username
+  TargetCloudType:
+    title: Target Cloud Type
+    type: string
+    default: OnPrem-vSphere
+    enum:
+      - AWS
+      - OnPrem-vSphere
+      - VMWonAWS
+resources:
+  AnsibleControlMachine:
+    type: Cloud.Machine
+    properties:
+      image: acm_ubuntu
+      flavor: acm_small
+      constraints:
+        - tag: '${input.TargetCloudType}'
+      cloudConfig: |
+        #cloud-config
+        chpasswd:
+          list: |
+            ${input.username}:${input.password}
+          expire: false  
+        runcmd:
+        - sudo sed -e 's/.*PasswordAuthentication no.*/PasswordAuthentication yes/' -i /etc/ssh/sshd_config
+        - sudo sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
+        - sudo service sshd restart
+        - apt-add-repository ppa:ansible/ansible --yes
+        - apt-get update
+        - apt-get install ansible --yes
+        - sudo sed -e 's/.*host_key_checking = False.*/host_key_checking = False/' -i /etc/ansible/ansible.cfg
+        - sudo chmod 777 /etc/ansible/
+        - sudo chmod 777 /etc/ansible/hosts
+        - sudo sed -e 's/.*vault_password_file.*/vault_password_file=vault_pass.txt/' -i /etc/ansible/ansible.cfg
+        - sudo touch /etc/ansible/vault_pass.txt
+        - sudo echo ‘VMware123 > /etc/ansible/vault_pass.txt
