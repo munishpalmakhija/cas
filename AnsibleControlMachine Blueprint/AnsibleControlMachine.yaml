@@ -28,13 +28,11 @@ resources:
         - tag: '${input.TargetCloudType}'
       cloudConfig: |
         #cloud-config
-        ssh_pwauth: yes
         chpasswd:
           list: |
             ${input.username}:${input.password}
           expire: false  
         runcmd:
-        - sed -e 's/.*127.*/127.0.0.1 ansiblecontrolmachine/' -i /etc/hosts
         - sudo sed -e 's/.*PasswordAuthentication no.*/PasswordAuthentication yes/' -i /etc/ssh/sshd_config
         - sudo sed -i -e '/^PermitRootLogin/s/^.*$/PermitRootLogin yes/' /etc/ssh/sshd_config
         - sudo service sshd restart
@@ -46,4 +44,4 @@ resources:
         - sudo chmod 777 /etc/ansible/hosts
         - sudo sed -e 's/.*vault_password_file.*/vault_password_file=vault_pass.txt/' -i /etc/ansible/ansible.cfg
         - sudo touch /etc/ansible/vault_pass.txt
-        - sudo echo ‘VMware1! > /etc/ansible/vault_pass.txt
+        - sudo echo ‘VMware123 > /etc/ansible/vault_pass.txt
