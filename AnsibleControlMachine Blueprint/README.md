@@ -1,8 +1,8 @@
-#Purpose 
+# Purpose 
 
 This Blueprint uses Cloud Agnostic components to deploy Ansible Control Machine to multi-cloud. It uses Capability Tag which allows CAS to select the correct Cloud based on the Input 
 
-#Pre-requisities 
+# Pre-requisities 
 
 You need to have following configuration in your CAS environment
 
