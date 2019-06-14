@@ -2,7 +2,7 @@
 
 #Update all installed packages.
  apt-get update
- apt-get upgrade
+
 
 #if you get an error similar to
 #'[ERROR Swap]: running with swap on is not supported. Please disable swap', disable swap:
@@ -39,7 +39,6 @@ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg |  apt-key add -
  #Initialize the k8s cluster
  kubeadm init --pod-network-cidr=10.244.0.0/16
 
- sleep 60
 
 #Create .kube file if it does not exists
 mkdir -p $HOME/.kube
