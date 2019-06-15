@@ -41,7 +41,7 @@ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg |  apt-key add -
 
 
 #Create .kube file if it does not exists
-mkdir -p $HOME/.kube
+mkdir -v $HOME/.kube
 cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
 
@@ -53,5 +53,9 @@ kubectl taint nodes --all node-role.kubernetes.io/master-
 #Install Flannel network
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+
+
+cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
+chown $(id -u):$(id -g) $HOME/.kube/config
 
 echo "Done."
