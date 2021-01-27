@@ -1,0 +1,88 @@
+#    ===========================================================================
+#    Created by:    Munishpal Makhija
+#    Release Date:  01/27/2021
+#    Version:       1.0
+#    Blog:          http://bit.ly/MyvBl0g
+#    Twitter:       @munishpal_singh
+#    ===========================================================================
+inputs:
+  lambda-name:
+    type: string
+    title: AWS Lambda Function Name
+    description: Name of the Lambda Function
+    default: vrli_cloud_lambda-s3eventlogs
+  lambda-rolename-arn:
+    type: string
+    title: AWS Lambda Role ARN
+    description: ARN of the role which has correct privileges for Lambda
+  source-s3bucket:
+    type: string
+    title: Source S3 Bucket
+    description: Source S3 Bucket were Lambda.zip is hosted.
+  target-s3bucket:
+    type: string
+    title: Target S3 Bucket
+    description: Target S3 Bucket for which you want to forward logs.
+  region:
+    type: string
+    title: AWS Region
+    description: AWS Region were Lambda will be created.
+  aws-accountname:
+    type: string
+    title: AWS Account Name
+    description: AWS Account Name.
+  vrlicloud-apikey:
+    type: string
+    encrypted: true
+    title: vRLI Cloud API Key
+    description: vRLI Cloud API Key
+resources:
+  Cloud_Service_AWS_Lambda_Function_1:
+    type: Cloud.Service.AWS.Lambda.Function
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      role: '${input.lambda-rolename-arn}'
+      region: '${input.region}'
+      account: '${input.aws-accountname}'
+      handler: index.handler
+      runtime: nodejs12.x
+      function_name: '${input.lambda-name}'
+      environment:
+        - variables:
+            LogIntelligence_API_Token: '${input.vrlicloud-apikey}'
+            LogIntelligence_API_Url: 'https://data.mgmt.cloud.vmware.com/le-mans/v1/streams/ingestion-pipeline-stream'
+      s3_bucket: '${input.source-s3bucket}'
+      s3_key: Lambda.zip
+  Cloud_Service_AWS_Lambda_Permission_1:
+    type: Cloud.Service.AWS.Lambda.Permission
+    dependsOn:
+      - Cloud_Service_AWS_Lambda_Function_1
+    metadata:
+      layoutPosition:
+        - 1
+        - 1
+    properties:
+      action: 'lambda:InvokeFunction'
+      region: '${input.region}'
+      account: '${input.aws-accountname}'
+      principal: s3.amazonaws.com
+      function_name: '${Cloud_Service_AWS_Lambda_Function_1.function_name}'
+  Cloud_Service_AWS_S3_Bucket_Notification_1:
+    type: Cloud.Service.AWS.S3.Bucket.Notification
+    dependsOn:
+      - Cloud_Service_AWS_Lambda_Permission_1
+    metadata:
+      layoutPosition:
+        - 2
+        - 0
+    properties:
+      bucket: '${input.target-s3bucket}'
+      region: '${input.region}'
+      account: '${input.aws-accountname}'
+      lambda_function:
+        - events:
+            - 's3:ObjectCreated:*'
+          lambda_function_arn: '${Cloud_Service_AWS_Lambda_Function_1.arn}'
